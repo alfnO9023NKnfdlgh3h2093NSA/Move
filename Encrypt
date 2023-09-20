@@ -1,0 +1,364 @@
+idGaia = 6946
+idUt = 6948
+local aTile = 0
+local bTile = 0
+indexx = 1
+ak = setting.dropposition.seed.x - 1
+wir = setting.dropposition.seed.y - 1
+kiw = setting.dropposition.block.x - 1
+wirs = setting.dropposition.block.y - 1
+
+function infokand(id,text)
+    if setting.webhook.access then
+        text = [[
+            $webHookUrl = "]]..id..[["
+            $payload = @{
+                content = "]]..text..[["
+            }
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Post -ContentType 'application/json'
+        ]]
+        local file = io.popen("powershell -command -", "w")
+        file:write(text)
+        file:close()
+    end
+end
+
+function webpack(id,link)
+	if setting.webhook.access then
+	    local script = [[
+    	    $webHookUrl = "]]..id..[[/messages/]]..link..[["
+	        $cpu = (Get-WmiObject win32_processor | Measure-Object -property LoadPercentage -Average | Select Average).Average
+    	    $ram = (Get-Counter '\Memory\Available MBytes').CounterSamples.CookedValue
+			$thumbnailObject = @{
+            	url = "https://cdn.discordapp.com/attachments/1122342991705673840/1128335180789207040/1689081173833.jpg"
+	        }
+    	    $footerObject = @{
+                text = "]].."Developed by BizzantiuM's\nLast updated : "..(os.date"%d/%m/%y":upper().." at ")..os.date("%I")..":"..os.date("%M").." "..os.date("%p"):upper()..""..[["
+	        }
+    	    $fieldArray = @(
+        	    @{
+            	    name = "STORAGE WORLD [RETRIEVE v1.2]"
+                	value = "]].."```WORLD``` : [||"..getBot().world.."||]\n"..scanItem()..""..[["
+	                inline = "false"
+    	        }
+        	)
+	        $embedObject = @{
+    	        color = "]]..math.random(1111111,9999999)..[["
+        	    thumbnail = $thumbnailObject
+            	footer = $footerObject
+	            fields = $fieldArray
+    	    }
+        	$embedArray = @($embedObject)
+        	$payload = @{
+            	embeds = $embedArray
+        	}
+        	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        	Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Patch -ContentType 'application/json'
+    	]]
+    	local pipe = io.popen("powershell -command -", "w")
+    	pipe:write(script)
+    	pipe:close()
+	end
+end
+
+function reconnect(world,id,x,y)
+    if getBot().status ~= "online" then
+        infokand(setting.webhook.status,"```Bot : "..getBot().name.." status is "..getBot().status.." !``` @everyone")
+        sleep(100)
+        while getBot().status ~= "online" do
+            connect()
+            sleep(setting.delay.reconnect)
+        end
+        while getBot().world ~= world:upper() do
+            sendPacket("action|join_request\nname|"..world:upper().."\ninvitedWorld|0",3)
+            sleep(setting.delay.warp)
+        end
+        if id ~= "" then
+            if getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 then
+                repeat
+                sendPacket("action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0", 3)
+                sleep(setting.delay.warp)
+                until getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg ~= 6
+            end
+        end
+        if x and y then
+            while math.floor(getBot().x / 32) ~= x or math.floor(getBot().y / 32) ~= y do
+                findPath(x,y)
+                sleep(100)
+            end
+        end
+        infokand(setting.webhook.status,"```Bot : "..getBot().name.." status is "..getBot().status.." !``` @everyone")
+        sleep(100)
+    end
+end
+
+function warp(world,id)
+    local bz = world
+    if door then
+        bz = bz .. "|" .. door
+    end
+    if getBot().world ~= string.upper(world) then
+        while getBot().world ~= world:upper() and not nuked do
+            sendPacket("action|join_request\nname|"..bz.."\ninvitedWorld|0",3)
+            sleep(setting.delay.warp)
+        end
+        sleep(1500)
+    end
+    if door and getBot().world == string.upper(world) then
+        local enter = 0
+        if getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 and not nuked then
+            repeat
+            sendPacket("action|join_request\nname|" ..bz.."\ninvitedWorld|0", 3)
+            sleep(setting.delay.warp)
+            if enter >= 5 then
+				print("Wrong door id, terminated script")
+                sleep(100)
+                infoBot(setting.webhook.nuked,"```Wrong door id, terminated script``` @everyone")
+                sleep(100)
+				error()
+			else
+				enter = enter + 1
+			end
+            until getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg ~= 6
+        end
+    end
+end
+
+function round(n)
+    return n % 1 > 0.5 and math.ceil(n) or math.floor(n)
+end
+
+function gscan(id)
+	count = 0
+	for _, obj in pairs(getObjects()) do
+		if obj.id == id then
+			count = count + obj.count
+		end
+	end
+	return count
+end
+
+
+function splitt(str, ptr)
+    if not ptr then 
+        ptr = "%s"
+    end
+    local tbl = {}
+    for string in string.gmatch(str, ptr) do
+        table.insert(tbl, string) 
+    end
+    return tbl
+end
+
+function retUt(x,y,count)
+    wrench(x,y)
+    sleep(setting.delay.retrieve)
+	sendPacket("action|dialog_return\ndialog_name|itemsucker_block\ntilex|"..(math.floor(getBot().x/32)+x).."|\ntiley|"..(math.floor(getBot().y/32)+y).."|\nbuttonClicked|retrieveitem\n\nchk_enablesucking|1",2)
+    sleep(setting.delay.retrieve)
+    sendPacket("action|dialog_return\ndialog_name|itemremovedfromsucker\ntilex|"..(math.floor(getBot().x/32)+x).."|\ntiley|"..(math.floor(getBot().y/32)+y).."|\nitemtoremove|"..count,2)
+	sleep(setting.delay.retrieve)
+end
+
+function retGaia(x,y,count)
+    wrench(x,y)
+    sleep(setting.delay.retrieve)
+    sendPacket("action|dialog_return\ndialog_name|itemsucker_seed\ntilex|"..(math.floor(getBot().x/32)+x).."|\ntiley|"..(math.floor(getBot().y/32)+y).."|\nbuttonClicked|retrieveitem\n\nchk_enablesucking|1",2)
+    sleep(setting.delay.retrieve)
+    sendPacket("action|dialog_return\ndialog_name|itemremovedfromsucker\ntilex|"..(math.floor(getBot().x/32)+x).."|\ntiley|"..(math.floor(getBot().y/32)+y).."|\nitemtoremove|"..count,2)
+	sleep(setting.delay.retrieve)
+end
+
+function retrievs()
+    world = splitt(setting.retrieve[indexx], "[^:]+")[1]
+    door = splitt(setting.retrieve[indexx], "[^:]+")[2]
+    setJob("Retrieve")
+    sleep(100)
+    warp(world,door)
+    for _, tile in pairs(getTiles()) do
+        if tile.fg == idGaia or tile.bg == idGaia then
+            findPath(tile.x,tile.y - 1)
+            sleep(setting.delay.retrieve)
+            retGaia(0,1,setting.ammount)
+            reconnect(world,door,tile.x,tile.y-1)
+        end
+    end
+    for _, tile in pairs(getTiles()) do
+        if tile.fg == idUt or tile.bg == idUt then
+            findPath(tile.x,tile.y - 1)
+            sleep(setting.delay.retrieve)
+            retUt(0,1,setting.ammount)
+            reconnect(world,door,tile.x,tile.y - 1)
+        end
+    end
+	if findItem(setting.item.block) >= setting.ammount and findItem(setting.item.seed) >= setting.ammount then
+		dropblock()
+		sleep(100)
+		dropseed()
+	elseif findItem(setting.item.seed) >= setting.ammount then
+		dropseed()
+	end
+end
+
+seedd = 1
+bjing = 1
+function dropblock()
+    setJob("Dropping blocks")
+	if setting.typeMode == "nodiff" then
+        world = splitt(setting.retrieve[indexx], "[^:]+")[1]
+        door = splitt(setting.retrieve[indexx], "[^:]+")[2]
+        for i,tile in pairs(getTiles()) do
+            if tile.bg == 0 or tile.fg == 0 then
+                ::wirs::
+                findPath(kiw + (aTile - 1),wirs)
+                sleep(1000)
+                local count = 0
+                reconnect(world,door,kiw + (aTile - 1),wirs)
+                while findItem(setting.item.block) > 0 do
+                    drop(setting.item.block)
+                    sleep(setting.delay.drop)
+                    reconnect(world,door,kiw + (aTile - 1),wirs)
+                    count = count + 1
+                    if count >= 2 then
+                        aTile = aTile + 1
+                        goto wirs
+                    end
+                end
+            end
+            if findItem(setting.item.block) == 0 then
+                break
+            end
+        end
+    elseif setting.typeMode == "diff" then
+        for i = seedd , #setting.storage.block.world do
+            door = setting.storage.block.door
+            warp(setting.storage.block.world[i],door)
+			if gscan(setting.item.block) >= setting.storage.block.limit then
+				infokand(setting.webhook.status,"```"..getBot().world.."``` has reached the limit, skipped world``` @everyone")
+				seedd = seedd + 1
+				if seedd > #setting.storage.block.world then
+					infokand(setting.webhook.status,"```ALL STORAGE HAS REACHED THE LIMIT !!!``` @everyone")
+					error()
+				end
+            else
+                for i,tile in pairs(getTiles()) do
+                    if tile.bg == 0 or tile.fg == 0 then
+                        ::wirs::
+                        findPath(kiw + (aTile - 1),wirs)
+                        sleep(1000)
+                        local count = 0
+                        reconnect(world,door,kiw + (aTile - 1),wirs)
+                        while findItem(setting.item.block) > 0 do
+                            drop(setting.item.block)
+                            sleep(setting.delay.drop)
+                            reconnect(world,door,kiw + (aTile - 1),wirs)
+                            count = count + 1
+                            if count >= 2 then
+                                aTile = aTile + 1
+                                goto wirs
+                            end
+                        end
+                    end
+                    if findItem(setting.item.block) == 0 then
+                        break
+                    end
+                end
+                sleep(100)
+                break
+            end
+        end
+    end
+    webpack(setting.webhook.block.link,setting.webhook.block.id)
+end
+
+function dropseed()
+    setJob("Dropping seeds")
+	if setting.typeMode == "nodiff" then
+        world = splitt(setting.retrieve[indexx], "[^:]+")[1]
+        door = splitt(setting.retrieve[indexx], "[^:]+")[2]
+        for i,tile in pairs(getTiles()) do
+            if tile.bg == 0 or tile.fg == 0 then
+                ::bar::
+                findPath(ak + (bTile - 1),wir)
+                sleep(1000)
+                local count = 0
+                reconnect(world,door,ak + (bTile - 1),wir)
+                while findItem(setting.item.seed) > 0 do
+                    drop(setting.item.seed)
+                    sleep(setting.delay.drop)
+                    reconnect(world,door,ak + (bTile - 1),wir)
+                    count = count + 1
+                    if count >= 2 then
+                        bTile = bTile + 1
+                        goto bar
+                    end
+                end
+            end
+            if findItem(setting.item.seed) == 0 then
+                break
+            end
+        end
+    elseif setting.typeMode == "diff" then
+        for i = bjing , #setting.storage.seed.world do
+            door = setting.storage.seed.door
+            warp(setting.storage.seed.world[i],door)
+			if gscan(setting.item.seed) >= setting.storage.seed.limit then
+				infokand(setting.webhook.status,"```"..getBot().world.."``` has reached the limit, skipped world``` @everyone")
+				bjing = bjing + 1
+				if bjing > #setting.storage.seed.world then
+					infokand(setting.webhook.status,"```ALL STORAGE HAS REACHED THE LIMIT !!!``` @everyone")
+					error()
+				end
+            else
+                for i,tile in pairs(getTiles()) do
+                    if tile.bg == 0 or tile.fg == 0 then
+                        ::bar::
+                        findPath(ak + (bTile - 1),wir)
+                        sleep(1000)
+                        local count = 0
+                        reconnect(world,door,ak + (bTile - 1),wir)
+                        while findItem(setting.item.seed) > 0 do
+                            drop(setting.item.seed)
+                            sleep(setting.delay.drop)
+                            reconnect(world,door,ak + (bTile - 1),wir)
+                            count = count + 1
+                            if count >= 2 then
+                                bTile = bTile + 1
+                                goto bar
+                            end
+                        end
+                    end
+                    if findItem(setting.item.seed) == 0 then
+                        break
+                    end
+                end
+                sleep(100)
+                break
+            end
+        end
+	end
+    webpack(setting.webhook.block.link,setting.webhook.block.id)
+    retrievs()
+end
+
+function scanItem()
+    local count = {}
+    for _,obj in pairs(getObjects()) do
+        if count[obj.id] then
+            count[obj.id].count = count[obj.id].count + obj.count
+        else
+            count[obj.id] = {id = obj.id, count = obj.count}
+        end
+    end
+    local str = ""
+    for _,string in pairs(count) do
+        str = str.."\n"..itemInfo(string.id).name.." : "..string.count.."x"
+    end
+    return str
+end
+
+if BizzantiuM.version == "1.2" and BizzantiuM.maker == "akbarsht" then
+    while true do
+        retrievs()
+    end
+end
