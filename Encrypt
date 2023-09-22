@@ -240,6 +240,7 @@ function dropblock()
 					infokand(setting.webhook.status,"```ALL STORAGE HAS REACHED THE LIMIT !!!``` @everyone")
 					error()
 				end
+                aTile = 0
             else
                 for i,tile in pairs(getTiles()) do
                     if tile.bg == 0 or tile.fg == 0 then
@@ -309,6 +310,7 @@ function dropseed()
 					infokand(setting.webhook.status,"```ALL STORAGE HAS REACHED THE LIMIT !!!``` @everyone")
 					error()
 				end
+                bTile = 0
             else
                 for i,tile in pairs(getTiles()) do
                     if tile.bg == 0 or tile.fg == 0 then
