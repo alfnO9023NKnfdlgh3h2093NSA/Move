@@ -446,7 +446,7 @@ identity.take = function(threads)
                     identity.webhookinfo()
                     identity.storingitems(threads)
                     setJob("Collecting")
-                    identity.door = identity.param
+            	    identity.door = setting.storage.worldTake.door
                     identity.warp(threads,identity.door)
                 end
             end
