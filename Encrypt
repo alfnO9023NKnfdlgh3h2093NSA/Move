@@ -1,16 +1,149 @@
-webhook = setting.webhook.info.url
-message = setting.webhook.info.messageid
-local cTile = 0
-local ak = setting.storage.worldDrop.dropposition.x - 1
-local wir = setting.storage.worldDrop.dropposition.y - 1
-packkk = 1
-wirz = {}
-bajigur = ""
+for i, bot in pairs(getBots()) do
+    if getBot().name:upper() == bot.name:upper() then
+        param = i
+    end
+end
 
-function infokand(text)
-    if setting.webhook.enable then
+mode = bot[param].mode
+startfrom = bot[param].startfrom
+farmList = bot[param].farmList
+idList = bot[param].idList
+infoid = {}
+local identity = {}
+identity.param = idList
+identity.status = setting.webhook.botstatus.url
+identity.webhook = setting.webhook.infoworld.url
+identity.message = setting.webhook.infoworld.messageid
+strings = ""
+index = 1
+local tileDrop = 0
+dropX = setting.storage.worldDrop.dropposition.x - 1
+dropY = setting.storage.worldDrop.dropposition.y - 1
+
+identity.round = function(n)
+    return n % 1 > 0.5 and math.ceil(n) or math.floor(n)
+end
+
+identity.takename = function()
+    strings = ""
+	for i = 1, #setting.storage.worldTake.world do
+		strings = strings.."\n||"..string.upper(setting.storage.worldTake.world[i]).."|| "..(infoid[setting.storage.worldTake.world[i]] or "?")..""
+    end
+    return strings
+end
+
+identity.dropname = function()
+    strings = ""
+	for i = 1, #setting.storage.worldDrop.world do
+		strings = strings.."\n||"..string.upper(setting.storage.worldDrop.world[i]).."|| "..(infoid[setting.storage.worldDrop.world[i]] or "?")..""
+    end
+    return strings
+end
+
+identity.farmname = function()
+    strings = ""
+	for i = 1, #farmList do
+		strings = strings.."\n||"..string.upper(farmList[i]).."|| "..(infoid[farmList[i]] or "?")..""
+	end
+	return strings
+end
+
+identity.itemFloat = function(id)
+	local count = 0
+	for _, obj in pairs(getObjects()) do
+		if obj.id == id then
+			count = count + obj.count
+		end
+	end
+	return count
+end
+
+identity.webhookinfo = function()
+	if setting.webhook.access then
+        if not collectfromfarm then
+            local text = [[
+                $webHookUrl = "]]..identity.webhook..[[/messages/]]..identity.message..[["
+                $payload = @{
+                    username = "BizzantiuM's"
+                    embeds = @(
+                        @{
+                            title = "AUTO MOVE v1.0"
+                            color = "]]..math.random(111111,999999)..[["
+                            fields = @(
+                                @{
+                                    name = "STORAGE STATIC"
+                                    value = "]]..""..[["
+                                    inline = "false"
+                                }
+                                @{
+                                    name = "WORLD TAKE"
+                                    value = "]]..identity.takename()..[["
+                                    inline = "true"
+                                }
+                                @{
+                                    name = "WORLD DROP"
+                                    value = "]]..identity.dropname()..[["
+                                    inline = "true"
+                                }
+                            )
+                            footer = @{
+                                text = "Developed by BizzantiuM's`nLast updated : ]]..(os.date"%d/%m/%y":upper().." at ")..os.date("%I")..":"..os.date("%M").." "..os.date("%p"):upper()..[["
+                            }
+                        }
+                    )
+                }
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Patch -ContentType 'application/json'
+            ]]
+            local pipe = io.popen("powershell -command -", "w")
+            pipe:write(text)
+            pipe:close()
+        else
+            local text = [[
+                $webHookUrl = "]]..identity.webhook..[[/messages/]]..identity.message..[["
+                $payload = @{
+                    username = "BizzantiuM's"
+                    embeds = @(
+                        @{
+                            title = "AUTO MOVE v1.0"
+                            color = "]]..math.random(111111,999999)..[["
+                            fields = @(
+                                @{
+                                    name = "STORAGE STATIC"
+                                    value = "]]..""..[["
+                                    inline = "false"
+                                }
+                                @{
+                                    name = "WORLD DROP"
+                                    value = "]]..identity.dropname()..[["
+                                    inline = "false"
+                                }
+                                @{
+                                    name = "WORLD TAKE"
+                                    value = "]]..identity.farmname()..[["
+                                    inline = "false"
+                                }
+                            )
+                            footer = @{
+                                text = "Developed by BizzantiuM's`nLast updated : ]]..(os.date"%d/%m/%y":upper().." at ")..os.date("%I")..":"..os.date("%M").." "..os.date("%p"):upper()..[["
+                            }
+                        }
+                    )
+                }
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Patch -ContentType 'application/json'
+            ]]
+            local pipe = io.popen("powershell -command -", "w")
+            pipe:write(text)
+            pipe:close()
+        end
+    end
+end
+
+identity.botinfo = function(text)
+    if setting.webhook.access then
         text = [[
-            $webHookUrl = "]]..setting.webhook.status.url..[["
+            $webHookUrl = "]]..identity.status..[["
             $payload = @{
                 content = "]]..text..[["
             }
@@ -23,113 +156,52 @@ function infokand(text)
     end
 end
 
-function round(n)
-    return n % 1 > 0.5 and math.ceil(n) or math.floor(n)
-end
-
-function wirrz()
-    bajigur = ""
-	for i = 1, #setting.storage.worldTake.world do
-		bajigur = bajigur.."\n||"..string.upper(setting.storage.worldTake.world[i]).."|| "..(wirz[setting.storage.worldTake.world[i]] or "?")..""
-    end
-    return bajigur
-end
-
-function wirrzz()
-    bajigur = ""
-	for i = 1, #setting.storage.worldDrop.world do
-		bajigur = bajigur.."\n||"..string.upper(setting.storage.worldDrop.world[i]).."|| "..(wirz[setting.storage.worldDrop.world[i]] or "?")..""
-    end
-    return bajigur
-end
-
-function webcuy(link,id)
-	if setting.webhook.enable then
-        local text = [[
-            $webHookUrl = "]]..link..[[/messages/]]..id..[["
-            $payload = @{
-                username = "BizzantiuM's"
-                embeds = @(
-                    @{
-                        title = "AUTO MOVE v1.2 [STORAGE STATIC]"
-                        color = "]]..math.random(111111,999999)..[["
-                        fields = @(
-                            @{
-                                name = "TAKE"
-                                value = "]]..wirrz()..[["
-                                inline = "false"
-                            }
-                            @{
-                                name = "DROP"
-                                value = "]]..wirrzz()..[["
-                                inline = "true"
-                            }
-                        )
-                        footer = @{
-                            text = "Developed by BizzantiuM's`nLast updated : ]]..(os.date"%d/%m/%y":upper().." at ")..os.date("%I")..":"..os.date("%M").." "..os.date("%p"):upper()..[["
-                        }
-                    }
-                )
-            }
-            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-            Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Patch -ContentType 'application/json'
-        ]]
-        local pipe = io.popen("powershell -command -", "w")
-        pipe:write(text)
-        pipe:close()
-    end
-end
-
-function warp(world,id)
-	local join = 0
-    bz = world
-    if door then
-        bz = bz .. "|" .. door
+identity.warp = function(world,door)
+    name = world
+    door = identity.door
+    if identity.door then
+        name = name .. "|" ..identity.door
     end
     if getBot().world ~= string.upper(world) then
-        while getBot().world ~= world:upper() and not nuked do
-            sendPacket("action|join_request\nname|"..bz.."\ninvitedWorld|0",3)
-            sleep(setting.delay.warp)
-            if join == 10 then
-                nuked = true
-            else
-                join = join + 1
+        addHook("onvariant","nuked",function (varlist)
+            if varlist[0] == "OnConsoleMessage" then
+                if string.find(varlist[1],"inaccessible.") then
+                    nuked = true
+                end
             end
+        end)
+        while getBot().world ~= string.upper(world) and not nuked do
+            sendPacket("action|join_request\nname|"..name.."\ninvitedWorld|0",3)
+            sleep(setting.delay.warp)
         end
+        removeHooks()
         sleep(1000)
     end
-    if door and getBot().world == string.upper(world) then
+    if identity.door and getBot().world == string.upper(world) then
         local stuck = 0
         while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 and not wrong do
-            sendPacket("action|join_request\nname|"..world:upper()..'|'..id:upper().."\ninvitedWorld|0",3)
+            sendPacket("action|join_request\nname|"..name.."\ninvitedWorld|0",3)
             sleep(setting.delay.warp)
+            stuck = stuck + 1
             if stuck == 5 then
                 wrong = true
-            else
-                stuck = stuck + 1
             end
         end
     end
 end
 
-function reconnect(world,id,x,y)
-    if getBot().status ~= 'online' then
-        infokand(''..getBot().name..' status is '..getBot().status..' ! @everyone')
-        sleep(100)
-        while getBot().status ~= 'online' do
-            connect()
-            sleep(setting.delay.reconnect)
-        end
+identity.reconnect = function(world,id,x,y)
+    if getBot().world == "EXIT" then 
+        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." stuck EXIT ??, trying to joining world again @everyone")
+        print("[ "..getBot().name.." ] slot : "..slot.." stuck EXIT ??, trying to joining world again")
         while getBot().world ~= world:upper() do
-            sendPacket('action|join_request\nname|'..world:upper()..'\ninvitedWorld|0',3)
+            sendPacket("action|join_request\nname|"..world:upper().."\ninvitedWorld|0",3)
             sleep(setting.delay.warp)
         end
-        if id ~= '' then
-            if getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 then
-                repeat
-                sendPacket('action|join_request\nname|' ..world:upper()..'|'..id:upper()..'\ninvitedWorld|0', 3)
+        if id ~= "" then
+            while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
+                sendPacket("action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0", 3)
                 sleep(setting.delay.warp)
-                until getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg ~= 6
             end
         end
         if x and y then
@@ -138,97 +210,135 @@ function reconnect(world,id,x,y)
                 sleep(100)
             end
         end
-        infokand(''..getBot().name..' status is '..getBot().status..' ! @everyone')
-        sleep(100)
+        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." success to joining world @everyone")
+        print("[ "..getBot().name.." ] slot : "..slot.." success to joining world")
+    end
+    while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
+        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." back to white door, what happened?! trying back to position")
+        print("[ "..getBot().name.." ] slot : "..slot.." back to white door, what happened?! trying back to position")
+        sendPacket("action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0", 3)
+        sleep(setting.delay.warp)
+        if x and y then
+            while math.floor(getBot().x / 32) ~= x or math.floor(getBot().y / 32) ~= y do
+                findPath(x,y)
+                sleep(100)
+            end
+        end
+        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." already back to position")
+        print("[ "..getBot().name.." ] slot : "..slot.." already back to position")
+    end
+    if getBot().status ~= "online" then
+        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." status is "..getBot().status.." @everyone")
+        print("[ "..getBot().name.." ] slot : "..slot.." status is "..getBot().status.."")
+        while getBot().status ~= "online" do
+            connect()
+            sleep(setting.delay.reconnect)
+            if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "ercon" then
+                botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." status is "..getBot().status..", removing bot @everyone")
+                print("[ "..getBot().name.." ] slot : "..slot.." status is "..getBot().status..", removing bot")
+                if setting.mode.removeBot then
+                    removeBot(getBot().name)
+                    sleep(100)
+                end
+                error()
+            end
+        end
+        while getBot().world ~= world:upper() do
+            sendPacket("action|join_request\nname|"..world:upper().."\ninvitedWorld|0",3)
+            sleep(setting.delay.warp)
+        end
+        if id ~= "" then
+            while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
+                sendPacket("action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0", 3)
+                sleep(setting.delay.warp)
+            end
+        end
+        if x and y then
+            while math.floor(getBot().x / 32) ~= x or math.floor(getBot().y / 32) ~= y do
+                findPath(x,y)
+                sleep(150)
+            end
+        end
+        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." status is "..getBot().status.." @everyone")
+        print("[ "..getBot().name.." ] slot : "..slot.." status is "..getBot().status.."")
     end
 end
 
-function gscan(id)
-	local count = 0
-	for _, obj in pairs(getObjects()) do
-		if obj.id == id then
-			count = count + obj.count
-		end
-	end
-	return count
-end
-
-function storePack(worlds)
-    for i = packkk , #setting.storage.worldDrop.world do
-        setJob('Storing items')
+identity.storingitems = function(threads)
+    for i = index , #setting.storage.worldDrop.world do
+        setJob("Dropping items")
         world = setting.storage.worldDrop.world[i]
-        door = setting.storage.worldDrop.door
-        warp(world,door)
-        webcuy(webhook,message)
+        identity.door = setting.storage.worldDrop.door
+        identity.warp(world,identity.door)
         if not nuked then
             if not wrong then
-                if gscan(setting.itemId[1]) > setting.storage.worldDrop.limit or gscan(setting.itemId[1]) == setting.storage.worldDrop.limit or gscan(setting.itemId[1]) >= setting.storage.worldDrop.limit then
-                    wirz[world] = "["..gscan(setting.itemId[1]).."] LIMIT !!!"
-                    infokand('[ ||'..getBot().world..'|| ] Has reached limit, skipped world')
-                    packkk = packkk + 1
-                    if packkk > #setting.storage.worldDrop.world then
-                        infokand("ALL STORAGE IS REACHED LIMIT !!! @everyone")
-                        if setting.options.removeBot then
+                if identity.itemFloat(setting.itemId[1]) >= setting.storage.worldDrop.limit then
+                    infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] LIMIT !!!"
+                    identity.botinfo("Drop storage : [ ||"..getBot().world.."|| ] has reached limit, skipped world @everyone")
+                    print("Drop storage : [ "..getBot().world.." ] has reached limit, skipped world")
+                    index = index + 1
+                    if index > #setting.storage.worldDrop.world then
+                        infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] LIMIT !!!"
+                        identity.botinfo("All drop storage has reached limit, Removing bot : [ ||"..getBot().name.."|| ] slot : "..slot.." @everyone")
+                        print("All drop storage has reached limit, Removing bot : [ "..getBot().name.." ] slot : "..slot.."")
+                        identity.webhookinfo()
+                        if setting.mode.removeBot then
                             removeBot(getBot().name)
                             sleep(100)
                         end
                         error()
                     end
-                    cTile = 0
+                    tileDrop = 0
                 else
                     for y,pack in pairs(setting.itemId) do
                         for i,tile in pairs(getTiles()) do
-                            if setting.options.seperateDrop then
+                            if setting.mode.separated then
                                 if tile.fg == 0 or tile.bg == 0 then
-                                    ::packzz::
-                                    findPath(ak + (cTile),wir - (y-1))
+                                    ::BACK::
+                                    findPath(dropX + (tileDrop),dropY - (y-1))
                                     sleep(1000)
                                     local count = 0
-                                    reconnect(world,door,ak + (cTile),wir - (y-1))
-                                    if ak + (cTile) >= 98 then
-                                        wir = wir - 1
-                                        cTile = 0
+                                    identity.reconnect(world,identity.door,dropX + (tileDrop),dropY - (y-1))
+                                    if dropX + (tileDrop) >= 98 then
+                                        dropY = dropY - 1
+                                        tileDrop = 0
                                     end
                                     while findItem(pack) > 0 do
                                         drop(pack)
                                         sleep(setting.delay.drop)
-                                        reconnect(world,door,ak + (cTile),wir - (y-1))
+                                        identity.reconnect(world,identity.door,dropX + (tileDrop),dropY - (y-1))
                                         count = count + 1
                                         if count >= 2 then
-                                            cTile = cTile + 1
-                                            goto packzz
+                                            tileDrop = tileDrop + 1
+                                            goto BACK
                                         end
                                     end
-                                    
-                                end
-                                if findItem(pack) == 0 then
-                                    break
                                 end
                             else
                                 if tile.fg == 0 or tile.bg == 0 then
-                                    ::packz::
-                                    findPath(ak + (cTile),wir)
+                                    ::BACK::
+                                    findPath(dropX + (tileDrop),dropY)
                                     sleep(1000)
                                     local count = 0
-                                    reconnect(world,door,ak + (cTile),wir)
-                                    if ak + (cTile) >= 98 then
-                                        wir = wir - 1
-                                        cTile = 0
+                                    identity.reconnect(world,identity.door,dropX + (tileDrop),dropY)
+                                    if dropX + (tileDrop) >= 98 then
+                                        dropY = dropY - 1
+                                        tileDrop = 0
                                     end
                                     while findItem(pack) > 0 do
                                         drop(pack)
                                         sleep(setting.delay.drop)
-                                        reconnect(world,door,ak + (cTile),wir)
+                                        identity.reconnect(world,identity.door,dropX + (tileDrop),dropY)
                                         count = count + 1
                                         if count >= 2 then
-                                            cTile = cTile + 1
-                                            goto packz
+                                            tileDrop = tileDrop + 1
+                                            goto BACK
                                         end
                                     end
                                 end
-                                if findItem(pack) == 0 then
-                                    break
-                                end
+                            end
+                            if findItem(pack) == 0 then
+                                break
                             end
                         end
                     end
@@ -236,95 +346,171 @@ function storePack(worlds)
                     break
                 end
             else
-                wirz[world] = "WRONG DOOR !!!"
-                print("Id door world drop is wrong, check ur id door !!")
-                infokand(setting.webhook.status,"Id door world drop is wrong, check ur id door !! @everyone")
-                packkk = packkk + 1
-                if packkk > #setting.storage.worldDrop.world then
-                    print("ALL WORLD DROP IS REACHED LIMIT !!!")
-                    infokand(setting.webhook.status,"ALL WORLD DROP IS REACHED LIMIT !!! @everyone")
-                    if setting.options.removeBot then
+                infoid[world] = "WRONG DOOR !!!"
+                wrong = false
+                sleep(1000)
+                print("[ "..getBot().world.." ] Id door drop storage is wrong, check ur id door!")
+                identity.botinfo("[ ||"..getBot().world.."|| ] Id door drop storage is wrong, check ur id door! @everyone")
+                index = index + 1
+                if index > #setting.storage.worldDrop.world then
+                    print("All drop storage has reached limit")
+                    identity.botinfo("All drop storage has reached limit! Removing bot : [ ||"..getBot().name.."|| ] slot : "..slot.." @everyone")
+                    identity.webhookinfo()
+                    if setting.mode.removeBot then
                         removeBot(getBot().name)
                         sleep(100)
                     end
                     error()
                 end
-                cTile = 0
+                tileDrop = 0
             end
         else
-            wirz[world] = "NUKED !!!"
-            print("World drop is NUKED, check ur storage !!")
-            infokand(setting.webhook.status,"World drop is NUKED, check ur storage !! @everyone")
-            packkk = packkk + 1
-            if packkk > #setting.storage.worldDrop.world then
-                print("ALL WORLD DROP IS REACHED LIMIT !!!")
-                infokand(setting.webhook.status,"ALL WORLD DROP IS REACHED LIMIT !!! @everyone")
-                if setting.options.removeBot then
+            infoid[world] = "NUKED !!!"
+            nuked = false
+            sleep(1000)
+            print("[ "..getBot().world.." ] drop Storage is NUKED, check ur storage!")
+            identity.botinfo("[ "..getBot().world.." ] drop Storage is NUKED, check ur storage! @everyone")
+            index = index + 1
+            if index > #setting.storage.worldDrop.world then
+                print("All drop storage has reached limit!")
+                identity.botinfo("All drop storage has reached limit! Removing bot : [ ||"..getBot().name.."|| ] slot : "..slot.." @everyone")
+                identity.webhookinfo()
+                if setting.mode.removeBot then
                     removeBot(getBot().name)
                     sleep(100)
                 end
                 error()
             end
-            cTile = 0
+            tileDrop = 0
         end
     end
-    wirz[world] = "["..gscan(setting.itemId[1]).."]"
+    infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."]"
+    identity.webhookinfo()
 end
 
-function take(worlds)
-    setJob('Collecting items')
-    collectSet(true,3)
-    for _, items in pairs(setting.itemId) do
-        for _, object in pairs(getObjects()) do
-            if object.id == items then
-                if gscan(setting.itemId[1]) ~= 0 and findItem(items) < setting.amount then
-                    findPath(math.floor((object.x)/32), math.floor((object.y)/32))
+identity.take = function(threads)
+    tileA = 99
+    tileB = 0
+    tileC = -1
+    tileD = 0
+    if collectfromfarm then
+        for y = -1, 53 do
+            for x = tileA, tileB, tileC do
+                if getTile(x, y).fg == 0 and getTile(x, y + 1).flags ~= 0 and identity.itemFloat(setting.itemId[1]) ~= 0 then
+                    infoid[threads] = ""..identity.itemFloat(setting.itemId[1])..""
+                    if findItem(setting.itemId[1]) > 180 then
+                        identity.storingitems(threads)
+                        setJob("Collect from farm")
+                        identity.door = identity.param
+                        identity.warp(threads,identity.door)
+                        identity.webhookinfo()
+                    end
+                    identity.door = identity.param
+                    findPath(x,y)
+                    identity.reconnect(threads,identity.door,x,y)
+                    if setting.mode.ignoregems then
+                        collect(2)
+                    else
+                        collect(2)
+                    end
+                    sleep(25)
                 end
-                if findItem(items) >= setting.amount then
-                    collectSet(false)
-                    wirz[worlds] = '['..gscan(setting.itemId[1])..']'
-                    storePack(worlds)
-                    setJob('Collecting items')
-                    door = setting.storage.worldTake.door
-                    warp(worlds,door)
-                    webcuy(webhook,message)
-                    collectSet(true,3)
+            end
+            if tileD == 1 then
+                if tileA == 0 then
+                    tileA = 99
+                    tileB = 0
+                    tileC = -1
+                    tileD = 0
+                elseif tileA == 99 then
+                    tileA = 0
+                    tileB = 99
+                    tileC = 1
+                    tileD = 0
+                end
+            elseif tileD == 0 then
+                tileD = tileD + 1
+            end
+        end
+    else
+        for i, object in pairs(getObjects()) do
+            for y , pack in pairs(setting.itemId) do
+                if object.id == pack and identity.itemFloat(setting.itemId[1]) ~= 0 then
+                    findPath(identity.round((object.x)/32), math.floor((object.y)/32))
+                    sleep(500)
+                    collect(2)
+                    sleep(500)
+                end
+                if findItem(pack) > 0 then
+                    infoid[threads] = ""..identity.itemFloat(setting.itemId[1])..""
+                    identity.webhookinfo()
+                    identity.storingitems(threads)
+                    setJob("Collecting")
+                    identity.door = identity.param
+                    identity.warp(threads,identity.door)
                 end
             end
         end
     end
 end
 
-if BizzantiuM.version == '1.2' and BizzantiuM.maker == 'akbarsht' then
-    sleep(math.random(1000,10000))
-    for i , list in pairs(setting.storage.worldTake.world) do
-        door = setting.storage.worldTake.door
-        warp(list,door)
-        webcuy(webhook,message)
-        if not nuked then
-            if not wrong then
-                take(list)
+if BizzantiuM.version == "1.0" and BizzantiuM.handler == "akbarsht" then
+    sleep(math.random(1000,6000))
+    if collectfromfarm then
+        for i = startfrom, #farmList do
+            identity.door = identity.param
+            setJob("Collect from farm")
+            identity.webhookinfo()
+            identity.warp(farmList[i],identity.door)
+            if not nuked then
+                if not wrong then
+                    identity.take(farmList[i])
+                else
+                    infoid[farmList[i]] = "WRONG DOOR ID"
+                    wrong = false
+                    sleep(1000)
+                    print(""..farmList[i].." is wrong door id, skipped world")
+                    identity.botinfo("[ ||"..farmList[i].."|| ] is wrong door id, skipped world @everyone")
+                end
             else
-                wirz[list] = 'WRONG ID'
-                wrong = false
+                infoid[farmList[i]] = "NUKED"
+                nuked = false
                 sleep(1000)
-                print("||"..list.."|| is wrong door id, skipped world")
-                infokand("||"..list.."|| is wrong door id, skipped world @everyone")
+                print(""..farmList[i].." is NUKED!, check ur world !!")
+                identity.botinfo("[ ||"..farmList[i].."|| ] is NUKED!, check ur world !! @everyone")
             end
-        else
-            wirz[list] = 'NUKED'
-            nuked = false
-            sleep(1000)
-            print("||"..list.."|| is NUKED!, check ur world")
-            infokand("||"..list.."|| is NUKED!, check ur world @everyone")
         end
+    else
+        for i , worlds in pairs(setting.storage.worldTake.world) do
+            identity.door = setting.storage.worldTake.door
+            setJob("Collecting")
+            identity.webhookinfo()
+            identity.warp(worlds,identity.door)
+            if not nuked then
+                if not wrong then
+                    identity.take(worlds)
+                else
+                    infoid[worlds] = "WRONG DOOR ID"
+                    wrong = false
+                    sleep(1000)
+                    print(""..worlds.." is wrong door id, skipped world")
+                    identity.botinfo("[ ||"..worlds.."|| ] is wrong door id, skipped world @everyone")
+                end
+            else
+                infoid[worlds] = "NUKED"
+                nuked = false
+                sleep(1000)
+                print(""..worlds.." is NUKED!, check ur world !!")
+                identity.botinfo("[ ||"..worlds.."|| ] is NUKED!, check ur world !! @everyone")
+            end
+        end
+        print("[ "..getBot().name.." ] slot : "..slot.." All take storage is empty, Terminated script!")
+        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." All take storage is empty, Terminated script! @everyone")
+        identity.webhookinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." All take storage is empty, Terminated script!")
+        if setting.mode.removeBot then
+            removeBot(getBot().name)
+            sleep(150)
+        end
+        error() 
     end
 end
-print('ALL WORLD TAKE IS EMPTY, Terminated script ! ')
-infokand('ALL WORLD TAKE IS EMPTY @everyone')
-sleep(150)
-if setting.options.removeBot then
-    removeBot(getBot().name)
-    sleep(150)
-end
-error() 
