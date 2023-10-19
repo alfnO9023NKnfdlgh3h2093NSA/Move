@@ -191,42 +191,6 @@ identity.warp = function(world,door)
 end
 
 identity.reconnect = function(world,id,x,y)
-    if getBot().world == "EXIT" then 
-        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." stuck EXIT ??, trying to joining world again @everyone")
-        print("[ "..getBot().name.." ] slot : "..slot.." stuck EXIT ??, trying to joining world again")
-        while getBot().world ~= world:upper() do
-            sendPacket("action|join_request\nname|"..world:upper().."\ninvitedWorld|0",3)
-            sleep(setting.delay.warp)
-        end
-        if id ~= "" then
-            while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
-                sendPacket("action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0", 3)
-                sleep(setting.delay.warp)
-            end
-        end
-        if x and y then
-            while math.floor(getBot().x / 32) ~= x or math.floor(getBot().y / 32) ~= y do
-                findPath(x,y)
-                sleep(100)
-            end
-        end
-        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." success to joining world @everyone")
-        print("[ "..getBot().name.." ] slot : "..slot.." success to joining world")
-    end
-    while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
-        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." back to white door, what happened?! trying back to position")
-        print("[ "..getBot().name.." ] slot : "..slot.." back to white door, what happened?! trying back to position")
-        sendPacket("action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0", 3)
-        sleep(setting.delay.warp)
-        if x and y then
-            while math.floor(getBot().x / 32) ~= x or math.floor(getBot().y / 32) ~= y do
-                findPath(x,y)
-                sleep(100)
-            end
-        end
-        identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." already back to position")
-        print("[ "..getBot().name.." ] slot : "..slot.." already back to position")
-    end
     if getBot().status ~= "online" then
         identity.botinfo("[ ||"..getBot().name.."|| ] slot : "..slot.." status is "..getBot().status.." @everyone")
         print("[ "..getBot().name.." ] slot : "..slot.." status is "..getBot().status.."")
@@ -394,59 +358,64 @@ identity.take = function(threads)
     tileC = -1
     tileD = 0
     if collectfromfarm then
-        for y = -1, 53 do
-            for x = tileA, tileB, tileC do
-                if getTile(x, y).fg == 0 and getTile(x, y + 1).flags ~= 0 and identity.itemFloat(setting.itemId[1]) ~= 0 then
-                    infoid[threads] = ""..identity.itemFloat(setting.itemId[1])..""
-                    if findItem(setting.itemId[1]) > 180 then
-                        identity.storingitems(threads)
-                        setJob("Collect from farm")
-                        identity.door = identity.param
-                        identity.warp(threads,identity.door)
-                        identity.webhookinfo()
+        for i , object in pairs(getObjects()) do
+            for y, pack in pairs(setting.itemId) do
+                if object.id == pack then
+                    for y = -1, 53 do
+                        for x = tileA, tileB, tileC do
+                            if getTile(x, y).fg == 0 and getTile(x, y + 1).flags ~= 0 and identity.itemFloat(pack) ~= 0 then
+                                infoid[threads] = ""..identity.itemFloat(setting.itemId[1])..""
+                                if findItem(setting.itemId[1]) > 180 then
+                                    identity.storingitems(threads)
+                                    setJob("Collect from farm")
+                                    identity.door = identity.param
+                                    identity.warp(threads,identity.door)
+                                    identity.webhookinfo()
+                                end
+                                identity.door = identity.param
+                                findPath(x,y)
+                                identity.reconnect(threads,identity.door,x,y)
+                                if setting.mode.ignoregems then
+                                    collect(setting.mode.range)
+                                else
+                                    collect(setting.mode.range)
+                                end
+                                sleep(20)
+                            end
+                        end
+                        if tileD == 1 then
+                            if tileA == 0 then
+                                tileA = 99
+                                tileB = 0
+                                tileC = -1
+                                tileD = 0
+                            elseif tileA == 99 then
+                                tileA = 0
+                                tileB = 99
+                                tileC = 1
+                                tileD = 0
+                            end
+                        elseif tileD == 0 then
+                            tileD = tileD + 1
+                        end
                     end
-                    identity.door = identity.param
-                    findPath(x,y)
-                    identity.reconnect(threads,identity.door,x,y)
-                    if setting.mode.ignoregems then
-                        collect(2)
-                    else
-                        collect(2)
-                    end
-                    sleep(25)
                 end
-            end
-            if tileD == 1 then
-                if tileA == 0 then
-                    tileA = 99
-                    tileB = 0
-                    tileC = -1
-                    tileD = 0
-                elseif tileA == 99 then
-                    tileA = 0
-                    tileB = 99
-                    tileC = 1
-                    tileD = 0
-                end
-            elseif tileD == 0 then
-                tileD = tileD + 1
             end
         end
     else
-        for i, object in pairs(getObjects()) do
-            for y , pack in pairs(setting.itemId) do
-                if object.id == pack and identity.itemFloat(setting.itemId[1]) ~= 0 then
+        for _, pack in pairs(setting.itemId) do
+            for _, object in pairs(getObjects()) do
+                if object.id == pack and identity.itemFloat(pack) ~= 0 then
                     findPath(identity.round((object.x)/32), math.floor((object.y)/32))
                     sleep(500)
-                    collect(2)
-                    sleep(500)
+                    collect(setting.mode.range)
                 end
                 if findItem(pack) > 0 then
                     infoid[threads] = ""..identity.itemFloat(setting.itemId[1])..""
                     identity.webhookinfo()
                     identity.storingitems(threads)
                     setJob("Collecting")
-            	    identity.door = setting.storage.worldTake.door
+                    identity.door = setting.storage.worldTake.door
                     identity.warp(threads,identity.door)
                 end
             end
@@ -455,7 +424,7 @@ identity.take = function(threads)
 end
 
 if BizzantiuM.version == "1.0" and BizzantiuM.handler == "akbarsht" then
-    sleep(math.random(1000,6000))
+    sleep(math.random(100,3000))
     if collectfromfarm then
         for i = startfrom, #farmList do
             identity.door = identity.param
