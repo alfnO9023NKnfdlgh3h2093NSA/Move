@@ -259,8 +259,8 @@ identity.storingitems = function(threads)
             if not wrong then
                 if identity.itemFloat(setting.itemId[1]) >= setting.storage.worldDrop.limit then
                     infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] LIMIT !!!"
-                    identity.botinfo("Drop storage : [ ||"..getBot().world.."|| ] has reached limit, skipped world @everyone")
-                    print("Drop storage : [ "..getBot().world.." ] has reached limit, skipped world")
+                    identity.botinfo("Drop storage : [ ||"..world.."|| ] has reached limit, skipped world @everyone")
+                    print("Drop storage : [ "..world.." ] has reached limit, skipped world")
                     identity.drop = identity.drop + 1
                     if identity.drop > #setting.storage.worldDrop.world then
                         infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] LIMIT !!!"
@@ -334,8 +334,8 @@ identity.storingitems = function(threads)
                 infoid[world] = "WRONG DOOR !!!"
                 wrong = false
                 sleep(1000)
-                print("[ "..getBot().world.." ] Id door drop storage is wrong, check ur id door!")
-                identity.botinfo("[ ||"..getBot().world.."|| ] Id door drop storage is wrong, check ur id door! @everyone")
+                print("[ "..world.." ] Id door drop storage is wrong, check ur id door!")
+                identity.botinfo("[ ||"..world.."|| ] Id door drop storage is wrong, check ur id door! @everyone")
                 identity.drop = identity.drop + 1
                 if identity.drop > #setting.storage.worldDrop.world then
                     print("All drop storage has reached limit")
@@ -353,8 +353,8 @@ identity.storingitems = function(threads)
             infoid[world] = "NUKED !!!"
             nuked = false
             sleep(1000)
-            print("[ "..getBot().world.." ] drop Storage is NUKED, check ur storage!")
-            identity.botinfo("[ "..getBot().world.." ] drop Storage is NUKED, check ur storage! @everyone")
+            print("[ "..world.." ] drop Storage is NUKED, check ur storage!")
+            identity.botinfo("[ "..world.." ] drop Storage is NUKED, check ur storage! @everyone")
             identity.drop = identity.drop + 1
             if identity.drop > #setting.storage.worldDrop.world then
                 print("All drop storage has reached limit!")
@@ -383,8 +383,8 @@ identity.takestorage = function()
             if not wrong then
                 if identity.itemFloat(setting.itemId[1]) == 0 then
                     infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] EMPTY !!!"
-                    identity.botinfo("Take storage : [ ||"..getBot().world.."|| ] has empty, skipped world @everyone")
-                    print("Take storage : [ "..getBot().world.." ] has empty, skipped world")
+                    identity.botinfo("Take storage : [ ||"..world.."|| ] has empty, skipped world @everyone")
+                    print("Take storage : [ "..world.." ] has empty, skipped world")
                     identity.take = identity.take + 1
                     if identity.take > #setting.storage.worldTake.world then
                         infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] EMPTY !!!"
@@ -420,8 +420,8 @@ identity.takestorage = function()
                 infoid[world] = "WRONG DOOR !!!"
                 wrong = false
                 sleep(1000)
-                print("[ "..getBot().world.." ] Id door take storage is wrong, check ur id door!")
-                identity.botinfo("[ ||"..getBot().world.."|| ] Id door take storage is wrong, check ur id door! @everyone")
+                print("[ "..world.." ] Id door take storage is wrong, check ur id door!")
+                identity.botinfo("[ ||"..world.."|| ] Id door take storage is wrong, check ur id door! @everyone")
                 identity.take = identity.take + 1
                 if identity.take > #setting.storage.worldTake.world then
                     print("All take storage has empty")
@@ -438,8 +438,8 @@ identity.takestorage = function()
             infoid[world] = "NUKED !!!"
             nuked = false
             sleep(1000)
-            print("[ "..getBot().world.." ] take Storage is NUKED, check ur storage!")
-            identity.botinfo("[ "..getBot().world.." ] take Storage is NUKED, check ur storage! @everyone")
+            print("[ "..world.." ] take Storage is NUKED, check ur storage!")
+            identity.botinfo("[ "..world.." ] take Storage is NUKED, check ur storage! @everyone")
             identity.take = identity.take + 1
             if identity.take > #setting.storage.worldTake.world then
                 print("All take storage has empty!")
