@@ -261,8 +261,8 @@ identity.storingitems = function(threads)
                     infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] LIMIT !!!"
                     identity.botinfo("Drop storage : [ ||"..world.."|| ] has reached limit, skipped world @everyone")
                     print("Drop storage : [ "..world.." ] has reached limit, skipped world")
-                    identity.drop = identity.drop + 1
-                    if identity.drop > #setting.storage.worldDrop.world then
+                    identity.dropitems = identity.dropitems + 1
+                    if identity.dropitems > #setting.storage.worldDrop.world then
                         infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] LIMIT !!!"
                         identity.botinfo("All drop storage has reached limit, Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                         print("All drop storage has reached limit, Removing bot : [ "..getBot().name.." ]")
@@ -336,8 +336,8 @@ identity.storingitems = function(threads)
                 sleep(1000)
                 print("[ "..world.." ] Id door drop storage is wrong, check ur id door!")
                 identity.botinfo("[ ||"..world.."|| ] Id door drop storage is wrong, check ur id door! @everyone")
-                identity.drop = identity.drop + 1
-                if identity.drop > #setting.storage.worldDrop.world then
+                identity.dropitems = identity.dropitems + 1
+                if identity.dropitems > #setting.storage.worldDrop.world then
                     print("All drop storage has reached limit")
                     identity.botinfo("All drop storage has reached limit! Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                     identity.webhookinfo()
@@ -355,8 +355,8 @@ identity.storingitems = function(threads)
             sleep(1000)
             print("[ "..world.." ] drop Storage is NUKED, check ur storage!")
             identity.botinfo("[ "..world.." ] drop Storage is NUKED, check ur storage! @everyone")
-            identity.drop = identity.drop + 1
-            if identity.drop > #setting.storage.worldDrop.world then
+            identity.dropitems = identity.dropitems + 1
+            if identity.dropitems > #setting.storage.worldDrop.world then
                 print("All drop storage has reached limit!")
                 identity.botinfo("All drop storage has reached limit! Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                 identity.webhookinfo()
@@ -385,8 +385,8 @@ identity.takestorage = function()
                     infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] EMPTY !!!"
                     identity.botinfo("Take storage : [ ||"..world.."|| ] has empty, skipped world @everyone")
                     print("Take storage : [ "..world.." ] has empty, skipped world")
-                    identity.take = identity.take + 1
-                    if identity.take > #setting.storage.worldTake.world then
+                    identity.takeitems = identity.takeitems + 1
+                    if identity.takeitems > #setting.storage.worldTake.world then
                         infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] EMPTY !!!"
                         identity.botinfo("All take storage has empty, Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                         print("All take storage has empty, Removing bot : [ "..getBot().name.." ]")
@@ -422,8 +422,8 @@ identity.takestorage = function()
                 sleep(1000)
                 print("[ "..world.." ] Id door take storage is wrong, check ur id door!")
                 identity.botinfo("[ ||"..world.."|| ] Id door take storage is wrong, check ur id door! @everyone")
-                identity.take = identity.take + 1
-                if identity.take > #setting.storage.worldTake.world then
+                identity.takeitems = identity.takeitems + 1
+                if identity.takeitems > #setting.storage.worldTake.world then
                     print("All take storage has empty")
                     identity.botinfo("All take storage has empty! Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                     identity.webhookinfo()
@@ -440,8 +440,8 @@ identity.takestorage = function()
             sleep(1000)
             print("[ "..world.." ] take Storage is NUKED, check ur storage!")
             identity.botinfo("[ "..world.." ] take Storage is NUKED, check ur storage! @everyone")
-            identity.take = identity.take + 1
-            if identity.take > #setting.storage.worldTake.world then
+            identity.takeitems = identity.takeitems + 1
+            if identity.takeitems > #setting.storage.worldTake.world then
                 print("All take storage has empty!")
                 identity.botinfo("All drop storage has empty! Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                 identity.webhookinfo()
