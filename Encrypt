@@ -14,8 +14,8 @@ identity.param = idList
 identity.status = setting.webhook.botstatus.url
 identity.webhook = setting.webhook.infoworld.url
 identity.message = setting.webhook.infoworld.messageid
-identity.drop = 1
-identity.take = 1
+identity.dropitems = 1
+identity.takeitems = 1
 strings = ""
 index = 1
 local tileDrop = 0
@@ -250,7 +250,7 @@ identity.reconnect = function(world,id,x,y)
 end
 
 identity.storingitems = function(threads)
-    for i = identity.drop , #setting.storage.worldDrop.world do
+    for i = identity.dropitems , #setting.storage.worldDrop.world do
         setJob("Dropping items")
         world = setting.storage.worldDrop.world[i]
         identity.door = setting.storage.worldDrop.door
@@ -374,7 +374,7 @@ identity.storingitems = function(threads)
 end
 
 identity.takestorage = function()
-    for i = identity.take , #setting.storage.worldTake.world do
+    for i = identity.takeitems, #setting.storage.worldTake.world do
         setJob("Taking items")
         world = setting.storage.worldTake.world[i]
         identity.door = setting.storage.worldTake.door
