@@ -139,7 +139,7 @@ identity.webhookinfo = function()
                     username = "BizzantiuM's"
                     embeds = @(
                         @{
-                            title = "AUTO MOVE v1.0"
+                            title = "AUTO MOVE v1.1"
                             color = "]]..math.random(111111,999999)..[["
                             fields = @(
                                 @{
