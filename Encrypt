@@ -279,7 +279,7 @@ identity.storingitems = function(threads)
         identity.webhookinfo()
         if not nuked then
             if not wrong then
-                if identity.itemFloat(setting.itemId[1]) >= setting.storage.worldDrop.limit then
+                if identity.itemFloat(setting.itemId[1]) > setting.storage.worldDrop.limit then
                     infoid[world] = "["..identity.itemFloat(setting.itemId[1]).."] LIMIT !!!"
                     identity.botinfo("Drop storage : [ ||"..world.."|| ] has reached limit, skipped world @everyone")
                     print("Drop storage : [ "..world.." ] has reached limit, skipped world")
