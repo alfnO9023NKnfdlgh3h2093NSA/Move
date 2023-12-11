@@ -202,6 +202,17 @@ identity.warp = function(world,door)
             end
         end)
         while getBot().world ~= string.upper(world) and not nuked and not subserver and not people and not level do
+            while getBot().status ~= "online" do
+                connect()
+                sleep(reconnect)
+                if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
+                    if removeBot then
+                        removeBot(getBot().name)
+                        sleep(2000)
+                    end
+                    error()
+                end
+            end
             sendPacket("action|join_request\nname|"..name.."\ninvitedWorld|0",3)
             sleep(warp)
         end
@@ -212,6 +223,17 @@ identity.warp = function(world,door)
         if door ~= "" then
             local stuck = 0
             while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 and not wrong do
+                while getBot().status ~= "online" do
+                    connect()
+                    sleep(reconnect)
+                    if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
+                        if removeBot then
+                            removeBot(getBot().name)
+                            sleep(2000)
+                        end
+                        error()
+                    end
+                end
                 sendPacket("action|join_request\nname|"..name.."\ninvitedWorld|0",3)
                 sleep(warp)
                 stuck = stuck + 1
