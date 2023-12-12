@@ -190,13 +190,13 @@ identity.warp = function(world,door)
                 if string.find(varlist[1],"inaccessible.") then
                     nuked = true
                 end
-                if string.find(varlist[1], "experiencing high load,") then
+                if string.find(varlist[1],"experiencing high load,") then
                     subserver = true
                 end
-                if string.find(varlist[1], "people in it.") then
+                if string.find(varlist[1],"people in it.") then
                     people = true
                 end
-                if string.find(varlist[1], "Players lower than level") then
+                if string.find(varlist[1],"Players lower than level") then
                     level = true
                 end
             end
@@ -206,7 +206,7 @@ identity.warp = function(world,door)
                 connect()
                 sleep(reconnect)
                 if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
-                    if removeBot then
+                    if removingbot then
                         removeBot(getBot().name)
                         sleep(2000)
                     end
@@ -227,7 +227,7 @@ identity.warp = function(world,door)
                     connect()
                     sleep(reconnect)
                     if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
-                        if removeBot then
+                        if removingbot then
                             removeBot(getBot().name)
                             sleep(2000)
                         end
@@ -285,7 +285,7 @@ identity.reconnect = function(world,id,x,y)
             connect()
             sleep(reconnect)
             if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
-                if removeBot then
+                if removingbot then
                     removeBot(getBot().name)
                     sleep(2000)
                 end
@@ -367,7 +367,7 @@ identity.storingitems = function(threads)
                                     identity.botinfo("All drop storage has reached limit, Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                                     print("All drop storage has reached limit, Removing bot : [ "..getBot().name.." ]")
                                     identity.webhookinfo()
-                                    if removeBot then
+                                    if removingbot then
                                         removeBot(getBot().name)
                                         sleep(2000)
                                     end
@@ -441,7 +441,7 @@ identity.storingitems = function(threads)
                                 print("All drop storage has reached limit")
                                 identity.botinfo("All drop storage has reached limit! Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                                 identity.webhookinfo()
-                                if removeBot then
+                                if removingbot then
                                     removeBot(getBot().name)
                                     sleep(2000)
                                 end
@@ -460,7 +460,7 @@ identity.storingitems = function(threads)
                             print("All drop storage has reached limit!")
                             identity.botinfo("All drop storage has reached limit! Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                             identity.webhookinfo()
-                            if removeBot then
+                            if removingbot then
                                 removeBot(getBot().name)
                                 sleep(2000)
                             end
@@ -518,7 +518,7 @@ identity.takestorage = function()
                                         identity.botinfo("All take storage has empty, Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                                         print("All take storage has empty, Removing bot : [ "..getBot().name.." ]")
                                         identity.webhookinfo()
-                                        if removeBot then
+                                        if removingbot then
                                             removeBot(getBot().name)
                                             sleep(2000)
                                         end
@@ -573,7 +573,7 @@ identity.takestorage = function()
                                 print("All take storage has empty")
                                 identity.botinfo("All take storage has empty! Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                                 identity.webhookinfo()
-                                if removeBot then
+                                if removingbot then
                                     removeBot(getBot().name)
                                     sleep(2000)
                                 end
@@ -591,7 +591,7 @@ identity.takestorage = function()
                             print("All take storage has empty!")
                             identity.botinfo("All take storage has empty! Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                             identity.webhookinfo()
-                            if removeBot then
+                            if removingbot then
                                 removeBot(getBot().name)
                                 sleep(2000)
                             end
@@ -888,7 +888,7 @@ if BizzantiuM.version == "1.2" and BizzantiuM.handler == "akbarsht" then
         end
         print("[ "..getBot().name.." ] Already finished all world, Terminated script!")
         identity.botinfo("[ ||"..getBot().name.."|| ] Already finished all world, Terminated script! @everyone")
-        if removeBot then
+        if removingbot then
             removeBot(getBot().name)
             sleep(2000)
         end
