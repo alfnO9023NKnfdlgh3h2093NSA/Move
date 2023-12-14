@@ -1,3 +1,7 @@
+setBool("Auto Reconnect",false)
+setBool("Show Punch Hand",false)
+setBool("Show Place Hand",false)
+
 for i, bot in pairs(getBots()) do
     if getBot().name:upper() == bot.name:upper() then
         indexbot = i
